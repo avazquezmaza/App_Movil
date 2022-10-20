@@ -1,0 +1,130 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: app_movil-configmap
+data:
+  application.yaml: |-
+    spring:
+      profiles:
+        active: default
+    info:
+      app:
+        name: app_movil
+        description: 'This service will obtain various balances viz., account'
+        version: 1.0.0
+    truststore:
+      keystoretype: JKS
+      password: 123
+      path: /mnt/secrets/kcb-truststore-pubcerts.jks
+      scheme: https4
+    management:
+      server:
+        port: 8080
+      endpoints:
+        web:
+          exposure:
+            include: info, health, metrics
+          base-path: /actuator
+    server:
+      port: 8080
+    logging:
+      config: classpath:logback.xml
+    camel:
+      springboot:
+        main-run-controller: true
+        name: app_movil
+        shutdownTimeout: 1
+        xmlRests: false
+        xmlRoutes: false
+      health:
+        enabled: false
+        indicator:
+          enabled: true
+      component:
+        servlet:
+          name: servlet
+          mapping:
+            enabled: true
+            context-path: /api/*
+    redis:
+      expireSeconds: 3
+      host: kcb-redis-cache.kcb-common-helpers
+      port: 6379
+    artemis:
+      host: amq7-amq-tcp.kcb-common-helpers
+      port: 61616
+      protocol: tcp
+      username: redhat
+      password: r3dh4t
+      url: ${artemis.protocol}://${artemis.host}:${artemis.port}
+    amq:
+      logging:
+        component: amqp
+        queue: "001.BALANCEINQUIRY.PAYLOADS.LOG.QUEUE"
+        uri: ${amq.logging.component}:queue:${amq.logging.queue}?connectionFactory=#connectionFactory
+      credential:
+        component: amqp
+        topic: "001.BALANCEINQUIRY.CREDS.TOPIC"
+        uri: ${amq.credential.component}:topic:${amq.credential.topic}?connectionFactory=#connectionFactory
+    log:
+      destination:
+        amq: true
+        rabbitmq: false
+        kafka: false
+    ehf:
+      xpath:
+        messages: /*/*/*/*/*[local-name()='messages']
+      protocol: http
+      host: bpr-ehf
+      port: 8080
+      path: /api/ehf/fetchKeys
+      method: POST
+      uri-params: "?bridgeEndpoint=true&httpMethod=${ehf.method}&throwExceptionOnFailure=true"
+      uri: ${ehf.protocol}4://${ehf.host}:${ehf.port}${ehf.path}${ehf.uri-params}
+    bpr:
+      security:
+        cipher:
+          aes:
+            key: 770A8A65DA156D24EE2A093277530142
+    vault-connector:
+      protocol: http
+      host: bpr-connector-vault
+      port: 8080
+      path: /api/providerCredentials/
+      method: GET
+      uri-params: "?bridgeEndpoint=true&httpMethod=${vault-connector.method}&throwExceptionOnFailure=false"
+      uri: ${vault-connector.protocol}4://${vault-connector.host}:${vault-connector.port}${vault-connector.path}
+    t24:
+      namespaces:
+        type: mKCBRWATMBALENQDetailType
+        prefix: ns2
+      xpath:
+        success: /*/*/*/*/*[local-name()='successIndicator']/text()
+        expected-value: Success
+      choice:
+        protocol: http
+        host: mock-t24-bpr-account-balance-inquiry
+        port: 8080
+        path: /api/BAL.ENQATM/services
+        method: POST
+        uri-params: "?bridgeEndpoint=true&httpMethod=${t24.choice.method}&throwExceptionOnFailure=true"
+        uri: ${t24.choice.protocol}4://${t24.choice.host}:${t24.choice.port}${t24.choice.path}${t24.choice.uri-params}
+      external:
+        protocol: http
+        host: mock-t24-bpr-account-balance-inquiry
+        port: 8080
+        path: /api/BAL.ENQATM/services
+        method: POST
+        uri-params: "?bridgeEndpoint=true&httpMethod=${t24.external.method}&throwExceptionOnFailure=true"
+        uri: ${t24.external.protocol}4://${t24.external.host}:${t24.external.port}${t24.external.path}${t24.external.uri-params}
+      internal:
+        protocol: http
+        host: mock-t24-bpr-account-balance-inquiry
+        port: 8080
+        path: /api/BAL.ENQATM/services
+        method: POST
+        uri-params: "?bridgeEndpoint=true&httpMethod=${t24.internal.method}&throwExceptionOnFailure=true"
+        uri: ${t24.internal.protocol}4://${t24.internal.host}:${t24.internal.port}${t24.internal.path}${t24.internal.uri-params}
+    interCoBalInq:
+      interCoBalInqInvokedchannel: 212
+    fallbackMsFlag: false

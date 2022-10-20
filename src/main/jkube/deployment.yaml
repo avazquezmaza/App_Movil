@@ -1,0 +1,61 @@
+metadata:
+  annotations:
+    app.openshift.io/connects-to: mock-t24-bpr-account-balance-inquiry
+  labels:
+    app.kubernetes.io/component: Atomic
+    app.kubernetes.io/part-of: app_movil
+spec:
+  template:
+    metadata:
+    spec:
+      imagePullSecrets:
+      - name: arokcb-registry
+      volumes:
+        - name: app_movil-logback-configmap
+          configMap:
+            name: app_movil-logback-configmap
+            defaultMode: 420
+        - name: applicationyamlfile
+          configMap:
+            name: app_movil-configmap
+            defaultMode: 420
+#        - name: kcb-truststore-pubcerts
+#          secret:
+#            secretName: kcb-truststore-pubcerts
+#            defaultMode: 420
+      hostAliases:
+        - ip: 172.16.117.49
+          hostnames:
+            - t24bprchan-t24bprchan.apps.keprocpt01.kcbad.com
+      containers:
+        - name: spring-boot
+          volumeMounts:
+            - name: app_movil-logback-configmap
+              readOnly: true
+              mountPath: /etc/config
+            - name: applicationyamlfile
+              readOnly: true
+              mountPath: /deployments/config
+#            - name: kcb-truststore-pubcerts
+#              readOnly: true
+#              mountPath: /mnt/secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 200m
+              memory: 1Gi
+          env:
+          - name: TZ
+            value: Africa/Kigali
+          - name: JAVA_OPTIONS
+            value: '-XX:TieredStopAtLevel=1 -noverify -Xmx512m -Xss4m -Xms128m -XX:ParallelGCThreads=1 -XX:ConcGCThreads=1 -Dlog4j2.formatMsgNoLookups=true -Djava.util.concurrent.ForkJoinPool.common.parallelism=1 -cp .'
+# Spring
+          - name: SPRING_APPLICATION_JSON
+            value: '{"server":{"undertow":{"io-threads":1, "worker-threads":32}}}'
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: app_movil-secret
+                key: redis.password
