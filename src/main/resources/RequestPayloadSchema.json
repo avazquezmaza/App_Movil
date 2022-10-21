@@ -1,0 +1,30 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"title": "The root schema",
+	"required": [
+		"peticion"
+	],
+	"properties": {
+		"peticion": {
+			"title": "The peticion Schema",
+			"type": "object",
+			"required": [
+				"idContacto",
+				"descIncEureka"
+			],
+			"properties": {
+				"idContacto": {
+					"title": "The idContacto Schema",
+					"type": "string",
+					"pattern": "^(?![nN][uU][lL]{2}$)\\s*\\S.*"
+				},
+				"descIncEureka": {
+					"title": "The descIncEureka Schema",
+					"type": "string",
+					"pattern": "^(?![nN][uU][lL]{2}$)\\s*\\S.*"
+				}
+			}
+		}
+	}
+}

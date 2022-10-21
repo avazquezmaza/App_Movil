@@ -75,8 +75,13 @@
 			<version>31.0-jre</version>
 		</dependency>
 		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20220924</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-gson</artifactId>
+			<artifactId>camel-jsonpath-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
@@ -266,25 +271,25 @@
 								<image>
 									<name>##image##</name>
 									<build>
-									<from>registry.redhat.io/openjdk/openjdk-11-rhel7:1.12-1.1661378019</from>
+										<from>registry.redhat.io/openjdk/openjdk-11-rhel7:1.12-1.1661378019</from>
 										<createImageOptions>
 											<platform>(_shared_platform)</platform>
 										</createImageOptions>
 										<assembly>
-										<mode>dir</mode>
-										<targetDir>/deployments</targetDir>
-										<inline>
-											<fileSets>
-												<fileSet>
-												<directory>target</directory>
-												<outputDirectory>.</outputDirectory>
-												<includes>
-													<include>*.jar</include>
-												</includes>
-												</fileSet>
-											</fileSets>
-										</inline>
-										</assembly> 
+											<mode>dir</mode>
+											<targetDir>/deployments</targetDir>
+											<inline>
+												<fileSets>
+													<fileSet>
+														<directory>target</directory>
+														<outputDirectory>.</outputDirectory>
+														<includes>
+															<include>*.jar</include>
+														</includes>
+													</fileSet>
+												</fileSets>
+											</inline>
+										</assembly>
 									</build>
 								</image>
 							</images>
